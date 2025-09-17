@@ -1,39 +1,23 @@
-// Lista de pistas con portada local (puedes cambiar a URLs absolutas si quieres)
+// Lista de pistas (ejemplo)
+// Si agregas 'cover' en cada objeto, se mostrará la portada: { cover: 'media/covers/01.jpg' }
 const TRACKS = [
-  {
-    src: 'media/01.mp3',
-    title: 'Beso de desayuno',
-    artist: 'Calle 13',
-    cover: 'media/covers/01.jpg'
-  },
-  {
-    src: 'media/02.mp3',
-    title: 'Cien años',
-    artist: 'Pedro Infante',
-    cover: 'media/covers/02.jpg'
-  },
-  {
-    src: 'media/03.mp3',
-    title: 'Cowboys Don’t Cry',
-    artist: 'Oliver Tree',
-    cover: 'media/covers/03.jpg'
-  },
-  {
-    src: 'media/04.mp3',
-    title: 'Dueles tan bien',
-    artist: 'Bruses',
-    cover: 'media/covers/04.jpg'
-  },
-  {
-    src: 'media/05.mp3',
-    title: 'Lo que hay x aquí',
-    artist: 'Rels B',
-    cover: 'media/covers/05.jpg'
-  }
+  { src: 'media/01.mp3', title: 'Beso de desayuno',  artist: 'Calle 13', cover: 'media/covers/01.jpg' },
+  { src: 'media/02.mp3', title: 'Cien años',         artist: 'Pedro Infante', cover: 'media/covers/02.jpg' },
+  { src: 'media/03.mp3', title: 'Cowboys Don’t Cry', artist: 'Oliver Tree', cover: 'media/covers/03.jpg' },
+  { src: 'media/04.mp3', title: 'Dueles tan bien',   artist: 'Bruses', cover: 'media/covers/04.jpg' },
+  { src: 'media/05.mp3', title: 'Lo que hay x aquí', artist: 'Rels B', cover: 'media/covers/05.jpg' },
+  { src: 'media/06.mp3', title: 'Cure For Me',       artist: 'Aurora', cover: 'media/covers/06.jpg' },
+  { src: 'media/07.m4a', title: 'SOS',               artist: 'Avicii', cover: 'media/covers/07.jpg' },
+  { src: 'media/08.mp3', title: 'Hot girl bummer',   artist: 'Blackbear', cover: 'media/covers/08.jpg' },
+  { src: 'media/09.m4a', title: 'Calm Down',         artist: 'Krewella', cover: 'media/covers/09.jpg' },
+  { src: 'media/10.mp3', title: 'Labios rotos',      artist: 'Zoé', cover: 'media/covers/10.jpg' },
+  { src: 'media/11.mp3', title: 'Lonely Day',        artist: 'System Of A Down', cover: 'media/covers/11.jpg' }
+
+
 ];
 
 // Estado del reproductor
-const state = { playlist: TRACKS.map(t => ({ ...t })), index: -1, shuffle: false, repeat: 'off' };
+const state = { playlist: TRACKS.map(t => ({...t})), index: -1, shuffle: false, repeat: 'off' };
 
 // Elementos
 const audio = document.getElementById('audio');
@@ -59,14 +43,7 @@ const iconVol = document.getElementById('iconVol');
 const volume = document.getElementById('volume');
 
 // Utilidades
-const fmt = (s) => { if (!isFinite(s)) return '0:00'; const m = Math.floor(s / 60), r = Math.floor(s % 60); return `${m}:${r.toString().padStart(2, '0')}`; };
-
-// Ocultar portada si falla la carga (URL rota, CORS, etc.)
-coverEl.addEventListener('error', () => {
-  coverEl.removeAttribute('src');
-  coverEl.alt = '';
-  coverEl.style.visibility = 'hidden';
-});
+const fmt = (s) => { if (!isFinite(s)) return '0:00'; const m = Math.floor(s / 60), r = Math.floor(s % 60); return `${m}:${r.toString().padStart(2,'0')}`; };
 
 function renderList() {
   listEl.innerHTML = '';
@@ -74,9 +51,9 @@ function renderList() {
   state.playlist.forEach((t, i) => {
     const li = document.createElement('li');
     li.className = 'track' + (i === state.index ? ' active' : '');
-    li.setAttribute('role', 'option');
+    li.setAttribute('role','option');
     li.setAttribute('aria-selected', i === state.index ? 'true' : 'false');
-    li.innerHTML = `<div><div style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${t.title}</div><small>${t.artist || ''}</small></div><small>${i + 1}</small>`;
+    li.innerHTML = `<div><div style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${t.title}</div><small>${t.artist || ''}</small></div><small>${i+1}</small>`;
     li.onclick = () => playAt(i);
     listEl.appendChild(li);
   });
@@ -90,19 +67,12 @@ function loadTrack(i) {
   titleEl.textContent = track.title || '—';
   artistEl.textContent = track.artist || '—';
   document.title = `▶ ${track.title} — Canción que escucho cuando pienso en ti`;
-  if (track.cover) {
-    coverEl.src = track.cover;
-    coverEl.alt = `Portada de ${track.title}`;
-    coverEl.style.visibility = 'visible';
-  } else {
-    coverEl.removeAttribute('src');
-    coverEl.alt = '';
-    coverEl.style.visibility = 'hidden';
-  }
+  if (track.cover) { coverEl.src = track.cover; coverEl.alt = `Portada de ${track.title}`; coverEl.style.visibility = 'visible'; }
+  else { coverEl.removeAttribute('src'); coverEl.alt=''; coverEl.style.visibility='hidden'; }
   renderList();
 }
 
-async function playAt(i) { if (i !== state.index) loadTrack(i); try { await audio.play(); } catch (e) { } updatePlayIcon(); }
+async function playAt(i) { if (i !== state.index) loadTrack(i); try { await audio.play(); } catch (e) {} updatePlayIcon(); }
 
 function updatePlayIcon() {
   const playing = !audio.paused;
@@ -114,6 +84,22 @@ function updateVolumeIcon() {
   iconVol.className = (audio.muted || audio.volume === 0)
     ? 'bi bi-volume-mute-fill'
     : 'bi bi-volume-up-fill';
+}
+
+// ——— helpers de UI para shuffle / repeat ———
+function updateShuffleUI() {
+  shuffleBtn.setAttribute('aria-pressed', state.shuffle ? 'true' : 'false');
+}
+function updateRepeatUI() {
+  const mode = state.repeat; // 'off' | 'all' | 'one'
+  repeatBtn.dataset.mode = mode;
+  repeatBtn.setAttribute('aria-pressed', mode !== 'off' ? 'true' : 'false');
+  repeatBtn.title =
+    mode === 'off' ? 'Repetir: apagado'
+    : mode === 'all' ? 'Repetir: todo'
+    : 'Repetir: una pista';
+  const i = repeatBtn.querySelector('i');
+  i.className = (mode === 'one') ? 'bi bi-repeat-1' : 'bi bi-arrow-repeat';
 }
 
 function nextIndex() {
@@ -137,7 +123,7 @@ function prevIndex() {
 // Controles
 playBtn.addEventListener('click', async () => {
   if (!audio.src) return;
-  if (audio.paused) { try { await audio.play(); } catch { } }
+  if (audio.paused) { try { await audio.play(); } catch {} }
   else audio.pause();
   updatePlayIcon();
 });
@@ -145,14 +131,14 @@ prevBtn.addEventListener('click', () => { if (!state.playlist.length) return; pl
 nextBtn.addEventListener('click', () => { if (!state.playlist.length) return; playAt(nextIndex()); });
 shuffleBtn.addEventListener('click', () => {
   state.shuffle = !state.shuffle;
-  shuffleBtn.setAttribute('aria-pressed', state.shuffle ? 'true' : 'false');
+  updateShuffleUI();
 });
 repeatBtn.addEventListener('click', () => {
-  state.repeat = state.repeat === 'off' ? 'all' : state.repeat === 'all' ? 'one' : 'off';
-  repeatBtn.dataset.mode = state.repeat;
-  repeatBtn.setAttribute('aria-pressed', state.repeat !== 'off' ? 'true' : 'false');
-  repeatBtn.title = state.repeat === 'off' ? 'Repetir: apagado' : state.repeat === 'all' ? 'Repetir: todo' : 'Repetir: una pista';
+  state.repeat = state.repeat === 'off' ? 'all'
+              : state.repeat === 'all' ? 'one'
+              : 'off';
   audio.loop = (state.repeat === 'one');
+  updateRepeatUI();
 });
 muteBtn.addEventListener('click', () => {
   audio.muted = !audio.muted;
@@ -162,7 +148,7 @@ muteBtn.addEventListener('click', () => {
 // ——— Volumen por slider: subir > 0 desmutea automáticamente ———
 volume.addEventListener('input', () => {
   audio.volume = parseFloat(volume.value);
-  if (audio.volume > 0 && audio.muted) audio.muted = false; // clave
+  if (audio.volume > 0 && audio.muted) audio.muted = false; // ← clave
   if (audio.volume === 0) audio.muted = true;
   updateVolumeIcon();
   localStorage.setItem('vol', audio.volume);
@@ -198,7 +184,7 @@ window.addEventListener('keydown', (e) => {
   if (e.key === 'ArrowUp') {
     e.preventDefault();
     audio.volume = Math.min(1, (audio.volume || 0) + 0.05);
-    if (audio.volume > 0 && audio.muted) audio.muted = false; // clave
+    if (audio.volume > 0 && audio.muted) audio.muted = false; // ← clave
     volume.value = audio.volume;
     updateVolumeIcon();
   }
@@ -233,3 +219,5 @@ renderList(); if (state.playlist.length) loadTrack(0);
 const saved = parseFloat(localStorage.getItem('vol'));
 if (!Number.isNaN(saved)) { audio.volume = saved; volume.value = saved; }
 updateVolumeIcon();
+updateShuffleUI();
+updateRepeatUI();
