@@ -1,14 +1,39 @@
-// Lista de pistas (ejemplo)
+// Lista de pistas con portada local (puedes cambiar a URLs absolutas si quieres)
 const TRACKS = [
-  { src: 'media/01.mp3', title: 'Beso de desayuno',  artist: 'Calle 13' },
-  { src: 'media/02.mp3', title: 'Cien años',         artist: 'Pedro Infante' },
-  { src: 'media/03.mp3', title: 'Cowboys Don’t Cry', artist: 'Oliver Tree' },
-  { src: 'media/04.mp3', title: 'Dueles tan bien',   artist: 'Bruses' },
-  { src: 'media/05.mp3', title: 'Lo que hay x aquí', artist: 'Rels B' }
+  {
+    src: 'media/01.mp3',
+    title: 'Beso de desayuno',
+    artist: 'Calle 13',
+    cover: 'media/covers/01.jpg'
+  },
+  {
+    src: 'media/02.mp3',
+    title: 'Cien años',
+    artist: 'Pedro Infante',
+    cover: 'media/covers/02.jpg'
+  },
+  {
+    src: 'media/03.mp3',
+    title: 'Cowboys Don’t Cry',
+    artist: 'Oliver Tree',
+    cover: 'media/covers/03.jpg'
+  },
+  {
+    src: 'media/04.mp3',
+    title: 'Dueles tan bien',
+    artist: 'Bruses',
+    cover: 'media/covers/04.jpg'
+  },
+  {
+    src: 'media/05.mp3',
+    title: 'Lo que hay x aquí',
+    artist: 'Rels B',
+    cover: 'media/covers/05.jpg'
+  }
 ];
 
 // Estado del reproductor
-const state = { playlist: TRACKS.map(t => ({...t})), index: -1, shuffle: false, repeat: 'off' };
+const state = { playlist: TRACKS.map(t => ({ ...t })), index: -1, shuffle: false, repeat: 'off' };
 
 // Elementos
 const audio = document.getElementById('audio');
@@ -34,7 +59,14 @@ const iconVol = document.getElementById('iconVol');
 const volume = document.getElementById('volume');
 
 // Utilidades
-const fmt = (s) => { if (!isFinite(s)) return '0:00'; const m = Math.floor(s / 60), r = Math.floor(s % 60); return `${m}:${r.toString().padStart(2,'0')}`; };
+const fmt = (s) => { if (!isFinite(s)) return '0:00'; const m = Math.floor(s / 60), r = Math.floor(s % 60); return `${m}:${r.toString().padStart(2, '0')}`; };
+
+// Ocultar portada si falla la carga (URL rota, CORS, etc.)
+coverEl.addEventListener('error', () => {
+  coverEl.removeAttribute('src');
+  coverEl.alt = '';
+  coverEl.style.visibility = 'hidden';
+});
 
 function renderList() {
   listEl.innerHTML = '';
@@ -42,9 +74,9 @@ function renderList() {
   state.playlist.forEach((t, i) => {
     const li = document.createElement('li');
     li.className = 'track' + (i === state.index ? ' active' : '');
-    li.setAttribute('role','option');
+    li.setAttribute('role', 'option');
     li.setAttribute('aria-selected', i === state.index ? 'true' : 'false');
-    li.innerHTML = `<div><div style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${t.title}</div><small>${t.artist || ''}</small></div><small>${i+1}</small>`;
+    li.innerHTML = `<div><div style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${t.title}</div><small>${t.artist || ''}</small></div><small>${i + 1}</small>`;
     li.onclick = () => playAt(i);
     listEl.appendChild(li);
   });
@@ -58,12 +90,19 @@ function loadTrack(i) {
   titleEl.textContent = track.title || '—';
   artistEl.textContent = track.artist || '—';
   document.title = `▶ ${track.title} — Canción que escucho cuando pienso en ti`;
-  if (track.cover) { coverEl.src = track.cover; coverEl.alt = `Portada de ${track.title}`; coverEl.style.visibility = 'visible'; }
-  else { coverEl.removeAttribute('src'); coverEl.alt=''; coverEl.style.visibility='hidden'; }
+  if (track.cover) {
+    coverEl.src = track.cover;
+    coverEl.alt = `Portada de ${track.title}`;
+    coverEl.style.visibility = 'visible';
+  } else {
+    coverEl.removeAttribute('src');
+    coverEl.alt = '';
+    coverEl.style.visibility = 'hidden';
+  }
   renderList();
 }
 
-async function playAt(i) { if (i !== state.index) loadTrack(i); try { await audio.play(); } catch (e) {} updatePlayIcon(); }
+async function playAt(i) { if (i !== state.index) loadTrack(i); try { await audio.play(); } catch (e) { } updatePlayIcon(); }
 
 function updatePlayIcon() {
   const playing = !audio.paused;
@@ -98,7 +137,7 @@ function prevIndex() {
 // Controles
 playBtn.addEventListener('click', async () => {
   if (!audio.src) return;
-  if (audio.paused) { try { await audio.play(); } catch {} }
+  if (audio.paused) { try { await audio.play(); } catch { } }
   else audio.pause();
   updatePlayIcon();
 });
@@ -123,7 +162,7 @@ muteBtn.addEventListener('click', () => {
 // ——— Volumen por slider: subir > 0 desmutea automáticamente ———
 volume.addEventListener('input', () => {
   audio.volume = parseFloat(volume.value);
-  if (audio.volume > 0 && audio.muted) audio.muted = false; // ← clave
+  if (audio.volume > 0 && audio.muted) audio.muted = false; // clave
   if (audio.volume === 0) audio.muted = true;
   updateVolumeIcon();
   localStorage.setItem('vol', audio.volume);
@@ -159,7 +198,7 @@ window.addEventListener('keydown', (e) => {
   if (e.key === 'ArrowUp') {
     e.preventDefault();
     audio.volume = Math.min(1, (audio.volume || 0) + 0.05);
-    if (audio.volume > 0 && audio.muted) audio.muted = false; // ← clave
+    if (audio.volume > 0 && audio.muted) audio.muted = false; // clave
     volume.value = audio.volume;
     updateVolumeIcon();
   }
