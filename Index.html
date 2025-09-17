@@ -1,623 +1,120 @@
 <!DOCTYPE html>
 <html lang="es">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Canción que escucho cuando pienso en ti</title>
-  <style>
-    :root {
-      /* Tema claro */
-      --bg: #f8fafc;          /* slate-50 */
-      --panel: #ffffff;       /* white */
-      --panel-2: #ffffff;
-      --muted: #475569;       /* slate-600 */
-      --text: #0f172a;        /* slate-900 */
-      --accent: #0ea5e9;      /* sky-500 */
-      --accent-2: #22c55e;    /* emerald-500 */
-      --shadow: 0 10px 30px rgba(2,6,23,.08);
-      --radius: 18px;
-    }
-    * { box-sizing: border-box; }
-    html, body { height: 100%; }
-    body {
-      margin: 0;
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, "Helvetica Neue", Noto Sans, Arial, "Apple Color Emoji", "Segoe UI Emoji";
-      background: radial-gradient(1200px 600px at 20% -10%, rgba(14,165,233,.10), transparent 40%),
-                  radial-gradient(1000px 600px at 120% 10%, rgba(34,197,94,.10), transparent 40%),
-                  var(--bg);
-      color: var(--text);
-    }
-    .app { max-width: 980px; margin: 16px auto; padding: 16px; background: var(--panel); border-radius: var(--radius); box-shadow: var(--shadow); border: 1px solid rgba(2,6,23,.06); }
-    header { display: grid; gap: 6px; }
-    h1 { font-size: clamp(18px, 3.5vw, 26px); margin: 0; letter-spacing: .3px; font-weight: 800; }
-    .subtitle { color: var(--muted); font-size: clamp(12px, 2.8vw, 14px); }
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Canción que escucho cuando pienso en ti</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app" role="application" aria-label="Reproductor de música">
+      <header>
+        <h1>Reproductor de música</h1>
+        <p class="subtitle">Cinco canciones, en lista de reproducción</p>
+      </header>
 
-    .wrap { display: grid; grid-template-columns: 340px 1fr; gap: 16px; margin-top: 14px; }
-    @media (max-width: 900px) { .wrap { grid-template-columns: 1fr; } }
-
-    .playlist { background: #ffffff; border: 1px solid rgba(2,6,23,.06); border-radius: 14px; min-height: 220px; padding: 10px; overflow: hidden; display: flex; flex-direction: column; }
-    .list { list-style: none; margin: 0; padding: 0; overflow: auto; }
-    .track { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 10px; padding: 12px 12px; border-radius: 12px; cursor: pointer; }
-    .track:hover { background: rgba(2,6,23,.04); }
-    .track.active { outline: 2px solid rgba(14,165,233,.35); background: rgba(14,165,233,.07); }
-    .track small { color: var(--muted); font-size: 12px; }
-    .empty { text-align: center; color: var(--muted); padding: 14px; }
-
-    .player { background: #ffffff; border: 1px solid rgba(2,6,23,.06); border-radius: 14px; padding: clamp(12px, 3vw, 16px); display: grid; gap: 12px; position: sticky; top: 8px; }
-
-    .now { display: grid; grid-template-columns: auto 1fr auto; gap: 12px; align-items: center; }
-    .title { font-weight: 800; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: clamp(14px, 3.2vw, 18px); }
-    .artist { color: var(--muted); font-size: clamp(12px, 2.8vw, 14px); }
-    .time { color: var(--muted); font-variant-numeric: tabular-nums; font-size: clamp(11px, 2.6vw, 13px); }
-
-    .cover{width:clamp(54px,12vw,84px);height:clamp(54px,12vw,84px);object-fit:cover;border-radius:14px;box-shadow:var(--shadow);border:1px solid rgba(2,6,23,.08)}
-
-    .progress { position: relative; height: 10px; background: rgba(2,6,23,.06); border-radius: 999px; overflow: hidden; cursor: pointer; }
-    .progress > .bar { position: absolute; inset: 0 0 0 0; transform-origin: left; transform: scaleX(0); background: linear-gradient(90deg, var(--accent), var(--accent-2)); }
-
-    .controls { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 10px; }
-    .btn-icon { width: 48px; height: 48px; display: inline-grid; place-items: center; border-radius: 14px; background: #ffffff; border: 1px solid rgba(2,6,23,.10); cursor: pointer; touch-action: manipulation; }
-    .btn-icon:hover { border-color: rgba(14,165,233,.5); background: rgba(14,165,233,.06); }
-    .btn-icon:active { transform: translateY(1px); }
-    .btn-icon svg { width: 22px; height: 22px; fill: currentColor; }
-    .btn-big { width: 56px; height: 56px; border-radius: 16px; }
-
-    .vol { display: flex; align-items: center; gap: 10px; justify-content: flex-end; }
-    input[type="range"] { width: clamp(120px, 35vw, 200px); accent-color: var(--accent); }
-
-    .meta { background: #ffffff; border: 1px solid rgba(2,6,23,.06); border-radius: 14px; padding: clamp(12px, 3vw, 16px); display: grid; gap: 12px; }
-    .dedication { font-size: clamp(13px, 3.2vw, 15px); line-height: 1.7; background: rgba(2,6,23,.03); border: 1px solid rgba(2,6,23,.06); padding: clamp(10px, 2.4vw, 12px); border-radius: 12px; }
-    .dedication .label{display:inline-block;margin-right:.5rem;font-weight:800;color:#334155;}
-    details.lyrics { background: rgba(2,6,23,.02); border: 1px solid rgba(2,6,23,.06); border-radius: 12px; padding: clamp(10px, 2.4vw, 12px); }
-    details.lyrics > summary { cursor: pointer; font-weight: 700; margin-bottom: 6px; }
-    .lyrics-text { white-space: pre-wrap; line-height: 1.75; font-size: clamp(13px, 3.2vw, 15px); color: #0f172a; max-height: 50vh; overflow: auto; padding-right: 6px; font-style: italic; }
-
-    footer { margin-top: 6px; text-align: center; color: var(--muted); font-size: 12px; }
-    .kbd { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; font-size: 12px; background: #ffffff; border: 1px solid rgba(2,6,23,.15); padding: 2px 6px; border-radius: 6px; color: var(--text); }
-
-    /* Mejoras táctiles en móviles */
-    @media (max-width: 600px) {
-      .controls { grid-template-columns: 1fr; }
-      .vol { justify-content: center; }
-      .playlist { order: 2; }
-      .player { order: 1; position: static; }
-      .track { padding: 14px; }
-    }
-  </style>
-</head>
-<body>
-  <div class="app" role="application" aria-label="Reproductor de música">
-    <header>
-      <h1>Reproductor de música con letra</h1>
-      <p class="subtitle">Cinco canciones, en lista de reproducción</p>
-    </header>
-
-    <div class="wrap">
-      <section class="playlist" aria-label="Lista de reproducción">
-        <ul id="list" class="list" role="listbox" aria-label="Pistas"></ul>
-        <div id="empty" class="empty">Sin pistas aún (revisa TRACKS en el script).</div>
-      </section>
-
-      <section class="player" aria-label="Controles del reproductor">
-        <div class="now">
-          <img id="cover" class="cover" src="" alt="Portada" />
-          <div>
-            <div class="title" id="title">—</div>
-            <div class="artist" id="artist">—</div>
+      <div class="wrap">
+        <section class="playlist" aria-label="Lista de reproducción">
+          <ul id="list" class="list" role="listbox" aria-label="Pistas"></ul>
+          <div id="empty" class="empty">
+            Sin pistas aún (revisa TRACKS en el script).
           </div>
-          <div class="time"><span id="cur">0:00</span> / <span id="dur">0:00</span></div>
-        </div>
-        <div id="progress" class="progress" aria-label="Barra de progreso" role="slider" tabindex="0" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
-          <div class="bar"></div>
-        </div>
+        </section>
 
-        <div class="controls">
-          <div style="display:flex; gap:8px; align-items:center;">
-            <button id="prev" class="btn-icon" title="Anterior (←)">
-              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6h2v12H6V6zm3.5 6L20 18V6l-10.5 6z"/></svg>
-            </button>
-            <button id="play" class="btn-icon btn-big" title="Reproducir/Pausar (Espacio)" aria-pressed="false">
-              <svg id="iconPlay" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
-            </button>
-            <button id="next" class="btn-icon" title="Siguiente (→)">
-              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 6h2v12h-2V6zM4 6l10.5 6L4 18V6z"/></svg>
-            </button>
+        <section class="player" aria-label="Controles del reproductor">
+          <div class="now">
+            <img id="cover" class="cover" src="" alt="Portada" />
+            <div>
+              <div class="title" id="title">—</div>
+              <div class="artist" id="artist">—</div>
+            </div>
+            <div class="time">
+              <span id="cur">0:00</span> / <span id="dur">0:00</span>
+            </div>
           </div>
 
-          <div style="justify-self:center; display:flex; gap:8px; align-items:center;">
-            <button id="shuffle" class="btn-icon" title="Aleatorio" aria-pressed="false">
-              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17 3h4v4h-2V6h-2V3zM7 17H5v4h4v-2H7v-2zm14 4l-4-4h-3l-3-3 2-2 3 3h3l4-4v10zM3 3l7 7-2 2L1 5V3h2z"/></svg>
-            </button>
-            <button id="repeat" class="btn-icon" title="Repetir" data-mode="off" aria-pressed="false">
-              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7h7V4l5 4-5 4V9H7v6h4v2H7a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2z"/></svg>
-            </button>
+          <div
+            id="progress"
+            class="progress"
+            aria-label="Barra de progreso"
+            role="slider"
+            tabindex="0"
+            aria-valuemin="0"
+            aria-valuemax="100"
+            aria-valuenow="0"
+          >
+            <div class="bar"></div>
           </div>
 
-          <div class="vol">
-            <button id="mute" class="btn-icon" title="Silenciar (M)">
-              <svg id="iconVol" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9v6h4l5 4V5L7 9H3zm13.5 3a4.5 4.5 0 0 0-3-4.243v8.486A4.5 4.5 0 0 0 16.5 12z"/></svg>
-            </button>
-            <input id="volume" type="range" min="0" max="1" step="0.01" value="0.9" aria-label="Volumen" />
+          <div class="controls">
+            <div style="display: flex; gap: 8px; align-items: center">
+              <button id="prev" class="btn-icon" title="Anterior (←)">
+                <i class="bi bi-skip-backward-fill" aria-hidden="true"></i>
+              </button>
+              <button
+                id="play"
+                class="btn-icon btn-big"
+                title="Reproducir/Pausar (Espacio)"
+                aria-pressed="false"
+              >
+                <i id="iconPlay" class="bi bi-play-fill" aria-hidden="true"></i>
+              </button>
+              <button id="next" class="btn-icon" title="Siguiente (→)">
+                <i class="bi bi-skip-forward-fill" aria-hidden="true"></i>
+              </button>
+            </div>
+
+            <div
+              style="
+                justify-self: center;
+                display: flex;
+                gap: 8px;
+                align-items: center;
+              "
+            >
+              <button
+                id="shuffle"
+                class="btn-icon"
+                title="Aleatorio"
+                aria-pressed="false"
+              >
+                <i class="bi bi-shuffle" aria-hidden="true"></i>
+              </button>
+              <button
+                id="repeat"
+                class="btn-icon"
+                title="Repetir"
+                data-mode="off"
+                aria-pressed="false"
+              >
+                <i class="bi bi-arrow-repeat" aria-hidden="true"></i>
+              </button>
+            </div>
+
+            <div class="vol">
+              <button id="mute" class="btn-icon" title="Silenciar (M)">
+                <i
+                  id="iconVol"
+                  class="bi bi-volume-up-fill"
+                  aria-hidden="true"
+                ></i>
+              </button>
+              <input
+                id="volume"
+                type="range"
+                min="0"
+                max="1"
+                step="0.01"
+                value="0.9"
+                aria-label="Volumen"
+              />
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      </div>
     </div>
 
-    <section class="meta" aria-label="Descripción y letra">
-      <div class="dedication"><strong class="label">Descripción:</strong> <span id="dedication">—</span></div>
-      <details class="lyrics" open>
-        <summary>Letra</summary>
-        <div class="lyrics-text" id="lyrics">—</div>
-      </details>
-      <footer>Atajos: <span class="kbd">Espacio</span> reproducir/pausar, <span class="kbd">←/→</span> buscar ±5s, <span class="kbd">↑/↓</span> volumen, <span class="kbd">M</span> mute.</footer>
-    </section>
-  </div>
-
-  <audio id="audio" preload="metadata"></audio>
-
-  <script>
-    const TRACKS = [
-      {
-        src: 'media/01.mp3',
-        title: 'Beso de desayuno',
-        artist: 'Calle 13',
-        dedication: 'Esta canción la escribió René pensando en una persona que quería mucho.',
-        lyrics: `Oye, eh, pa' que veas que
-Yo también escribo cosas bonitas
-Yo quiero caminar por encima de tu pelo
-Hasta llegar al ombligo de tu oreja
-Y recitarte un poquito de cosquillas
-Y regalarte una sábana de almejas
-
-Darte un beso de desayuno
-Pa' irnos volando hasta Neptuno
-Si hace frío, te caliento con una sopa de amapolas
-Y con un fricasé de acerolas
-
-Quiero caminar por encima de tu pelo
-Hasta llegar al ombligo de tu oreja
-Y recitarte un poquito de cosquillas
-Y regalarte una sábana de almejas
-
-Darte un beso de desayuno
-Pa' irnos volando hasta Neptuno
-Si hace frío, te caliento con una sopa de amapolas
-Y con un fricasé de acerolas
-
-Tú eres un panal de dulces frutas frescas
-Tú tienes una mirada demasia'o pintoresca
-Una mirada color infinito
-Tú me pones el estómago blandito
-
-Vamos, pasito a pasito, siguiéndonos las huellas
-Caminando en una tómbola de estrellas
-Un trayecto con clima perfecto
-Regálame una sonrisita con sabor a viento
-
-Tú eres mi vitamina del pecho, mi fibra
-Tú eres todo que me equilibra
-Un balance, lo que me complementa
-Un masajito con sabor a menta
-
-Tú tienes una cosita que brilla, que sobresale
-Por eso yo quiero que tú me regales
-30 carnavales, 400 mil cuentos
-Una cajita pa' guardar los momentos
-
-Vamos a hacer burbujas dentro el café
-Vamos a tener 100 bebés y dejar los clichés pa' otro día
-Tú me hiciste brujería
-¡Bruja!
-
-Vámonos pa' Cuba a 100 millas, patinando por las Antillas
-Vamos a hacer un compromiso sin capilla
-Con una siembra de trigo y con la luna de testigo
-Enrolladitos, usando el mismo abrigo
-
-Quiero caminar por encima de tu pelo
-Hasta llegar al ombligo de tu oreja
-Y recitarte un poquito de cosquillas
-Y regalarte una sábana de almejas
-
-Darte un beso de desayuno
-Pa' irnos volando hasta Neptuno
-Si hace frío, te caliento con una sopa de amapolas
-Y con un fricasé de acerolas
-
-Tú eres todo un evento, una pintura en movimiento
-Un árbol que respira
-Tú eres una diosa Kalima
-Tú rimas, conmigo tú combinas
-
-¿Qué tal si yo me inyecto el pulgar en la boca
-Y me inflo como un globo?
-Nos estacionamos en un árbol de algarrobo
-Vámonos, que el tiempo es oro
-
-La noche a da'o un estirón
-Y tengo el océano de chaperón
-Mis piernas se convirtieron en algodón
-Porque estar contigo se siente cabrón
-
-Quiero caminar por encima de tu pelo
-Hasta llegar al ombligo de tu oreja
-Y recitarte un poquito de cosquillas
-Y regalarte una sábana de almejas
-
-Darte un beso de desayuno
-Pa' irnos volando hasta Neptuno
-Si hace frío, te caliento con una sopa de amapolas
-Y con un fricasé de acerolas
-
-Quiero caminar por encima de tu pelo
-Hasta llegar al ombligo de tu oreja
-Y recitarte un poquito de cosquillas
-Y regalarte una sábana de almejas
-
-Darte un beso de desayuno
-Pa' irnos volando hasta Neptuno
-Si hace frío te caliento con una sopa de amapolas
-Y con un fricasé de acerolas
-
-Ey, ey, ey, chica
-Ey, ey, ey, chica
-Ey, ey, ey, chica
-Ey, ey, ey, Calle 13
-Ey, ey, chica
-Ey, ey, ey, chica
-Ey, ey, ey, chica
-Oye Hector, métele ahí en la guitarra`
-      },
-      {
-        src: 'media/02.mp3',
-        title: 'Cien años',
-        artist: 'Pedro Infante',
-        dedication: 'Pedro Infante es un clasico en la música méxicana y un referente de los boleros romanticos".',
-        lyrics: `Pasaste a mi lado
-Con gran indiferencia
-Tus ojos ni siquiera
-Voltearon hacia mí
-
-Te vi sin que me vieras
-Te hablé sin que me oyeras
-Y toda mi amargura
-Se ahogó dentro de mí
-
-Me duele hasta la vida
-Saber que me olvidaste
-Pensar que ni desprecios
-Merezca, yo, de ti
-
-Y, sin embargo, sigues
-Unida a mi existencia
-Y si vivo cien años
-Cien años, pienso en ti
-
-Pasaste a mi lado
-Con gran indiferencia
-Tus ojos ni siquiera
-Voltearon hacia mí
-
-Te vi sin que me vieras
-Te hablé sin que me oyeras
-Y toda mi amargura
-Se ahogó dentro de mí
-
-Me duele hasta la vida
-Saber que me olvidaste
-Pensar que ni desprecios
-Merezca, yo, de ti
-
-Y, sin embargo, sigues
-Unida a mi existencia
-Y si vivo cien años
-Cien años, pienso en ti`
-      },
-      {
-        src: 'media/03.mp3',
-        title: 'Cowboys Don’t Cry',
-        artist: 'Oliver Tree',
-        dedication: 'Oliver Tree es reconocido por su canciones lentas y por lo general tristes.',
-        lyrics: `I'm not good at goodbyes
-(no soy bueno para las despedidas)
-I miss the sunshine in your eyes
-(Extraño el brillo del sol en tus ojos)
-Who said cowboys don't cry?
-(quien dijo que los vaqueros no lloran?)
-Come on, baby, let's take one last ride
-(vamos nena, tomemos un último paseo)
-
-We're riding 'round this carousel if you catch my drift
-(somos como un carrusel si entiendes a lo que me refiero)
-We're riding 'round this wagon wheel, she took me for a spin
-(somos como una rueda de carreta, ella me hizo girar)
-We're riding 'round this carousel, getting dizzy 'til we're sick
-(somos como un carrusel, mareándonos hasta enfermarnos)
-Love is like a circle, there's no easy way to end
-(el amor es como un círculo, no hay una manera fácil de terminar)
-
-It's too much, I can't take anymore
-(Es demasiado, no puedo soportarlo más)
-Stuck feeling like we've been here before
-(Atascado sintiendo que hemos estado aquí antes)
-But now the sun stopped shining here in the Wild West
-(Pero ahora el sol dejó de brillar aquí en el salvaje oeste)
-My heart stopped beating, and it's sunk into my chest
-(Mi corazón dejó de latir, y se hundió en mi pecho)
-
-We're riding 'round this carousel if you catch my drift
-(somos como un carrusel si entiendes a lo que me refiero)
-We're riding 'round this wagon wheel, she took me for a spin
-(somos como una rueda de carreta, ella me hizo girar)
-We're riding 'round this carousel, getting dizzy 'til we're sick
-(somos como un carrusel, mareándonos hasta enfermarnos)
-Love is like a circle, there's no easy way to end
-(el amor es como un círculo, no hay una manera fácil de terminar)
-
-Just an outlaw who only had one friend
-(Solo un forajido que solo tenía un amigo)
-I wonder if I'll ever see her face again
-(Me pregunto si alguna vez volveré a ver su rostro)
-Dark clouds hanging over, they follow where I've been
-(Nubes oscuras colgando, siguen donde he estado)
-My cowboy tears are still blowing in the wind
-(Mis lágrimas de vaquero todavía soplan con el viento)
-
-We're riding 'round this carousel if you catch my drift
-(somos como un carrusel si entiendes a lo que me refiero)
-We're riding 'round this wagon wheel, she took me for a spin
-(somos como una rueda de carreta, ella me hizo girar)
-We're riding 'round this carousel, getting dizzy 'til we're sick
-(somos como un carrusel, mareándonos hasta enfermarnos)
-Love is like a circle, there's no easy way to end
-(el amor es como un círculo, no hay una manera fácil de terminar)
-
-I'm not good at goodbyes
-(no soy bueno para las despedidas)
-I miss the sunshine in your eyes
-(Extraño el brillo del sol en tus ojos)
-Who said cowboys don't cry?
-(quien dijo que los vaqueros no lloran?)
-Come on, baby, let's take one last ride
-(vamos nena, tomemos un último paseo)
-
-We're riding 'round this carousel if you catch my drift
-(somos como un carrusel si entiendes a lo que me refiero)
-We're riding 'round this wagon wheel, she took me for a spin
-(somos como una rueda de carreta, ella me hizo girar)
-We're riding 'round this carousel, getting dizzy 'til we're sick
-(somos como un carrusel, mareándonos hasta enfermarnos)
-Love is like a circle, there's no easy way to end
-(el amor es como un círculo, no hay una manera fácil de terminar)`
-      },
-      {
-        src: 'media/04.mp3',
-        title: 'Dueles tan bien',
-        artist: 'Bruses',
-        dedication: 'Amanda vocalista de Bruses la mujer que venció a la muerte, escribió esta canción con el corazón roto.',
-        lyrics: `Siempre
-He creído lo que me han vendido en la tele y el cine
-Qué triste
-Quieren
-Que crea en el para siempre y finales felices
-Qué triste
-Pa ra ra ra ra, ra ra ra
-Siempre acabo mal
-Y me quiero matar
-Porque
-Dueles, dueles, dueles
-Más de lo que debes
-Dueles, dueles
-Y dueles tan bien
-Que no sé qué hacer
-Dueles, dueles, dueles
-Más de lo que debes
-Dueles, dueles
-Y dueles tan bien
-Que me intoxiqué contigo
-Sabes
-Me sabes mejor que el alcohol
-Lo sabes y tienes control
-De toda mi estabilidad
-Mi estado de salud mental
-Cuidado (cuidado)
-Cuidado (cuidado)
-Cuidado me puedo quebrar
-Porque
-Dueles, dueles, dueles
-Más de lo que debes
-Dueles, dueles
-Y dueles tan bien
-Que no sé qué hacer
-Dueles, dueles, dueles
-Más de lo que debes
-Dueles, dueles
-Y dueles tan bien
-Que me intoxiqué contigo
-Siempre acabo mal
-Y me quiero matar
-Porque
-Dueles, dueles, dueles
-Más de lo que debes
-Dueles, dueles
-Y dueles tan bien
-Que no sé qué hacer
-Dueles, dueles, dueles
-Mas de lo que debes
-Dueles, dueles
-Y dueles tan bien
-Que me intoxiqué contigo
-Contigo
-Contigo
-Dueles, dueles, dueles, dueles tan bien`
-      },
-      {
-        src: 'media/05.mp3',
-        title: 'Lo que hay x aquí',
-        artist: 'Rels B',
-        dedication: 'Otra canción de dolor y despecho.',
-        lyrics: `¿Yo nunca te he hablado de ella?
-Ella era como
-Como una puesta de sol, ¿sabes?
-Como ver el mar después de mucho tiempo
-Mi hogar
-¿Quién estará besando esos labio'?
-Me tiene pensando, yo antes no era así
-Seguro es un tipo más guapo que yo
-Ella era demasiado guapa para mí
-Dime, de qué sirve toda esta ambición
-Si al llegar no tengo con quién compartir
-Que no la perdiera, mamá me avisó
-Y yo como un tonto fue que la perdí
-Ya no tengo a quién mandar estos TikToks
-Ni con quién criticar to antes de dormir
-Sus amigas dicen que es mejor que yo
-Y que se la ve mucho mejor así
-Y aunque duela, es verdad
-Porque ser mejor es muy fácil
-¿Y pa qué iba a volver a buscarme?
-Si no echa de menos lo que hay por aquí, yeah
-Amanecí pensando en ti, mi amor
-Entré a tus redes pa ver cómo estás
-Vi que hace poco cambiaste de look
-Y aún no borraste la foto nuestra
-Me salió un recuerdo de nosotros dos
-De la noche desnudos, bebiendo en el mar
-Y me puso triste pensar que ya no
-Y que hay otro que ahora ocupa mi lugar
-Por lo menos ahora no te piden fotos
-Entrando en el cine o en el restaurant
-Y todas las cosas que querías hacer
-Y que por ser quien soy, tuviste que cortar
-Ojalá que guardes el primer anillo
-Que pude comprarte con la música
-Y que me recuerdes como el primer día
-Oh-oh, oh-oh
-Skinny
-¿Quién estará besando esos labio'?
-Me tiene pensando, yo antes no era así
-Seguro es un tipo más guapo que yo
-Ella era demasiado guapa para mí
-Dime, de qué sirve toda esta ambición
-Si al llegar no tengo con quién compartir
-Que no la perdiera, mamá me avisó
-Y yo como un tonto fue que la perdí
-Y aunque duela, es verdad
-Porque ser mejor es muy fácil
-¿Y pa qué iba a volver a buscarme?
-Si no echa de menos lo que hay por aquí`
-      }
-    ];
-
-    // Estado del reproductor
-    const state = { playlist: TRACKS.map(t => ({...t})), index: -1, shuffle: false, repeat: 'off' };
-
-    // Elementos
-    const audio = document.getElementById('audio');
-    const listEl = document.getElementById('list');
-    const emptyEl = document.getElementById('empty');
-    const titleEl = document.getElementById('title');
-    const artistEl = document.getElementById('artist');
-    const coverEl = document.getElementById('cover');
-    const curEl = document.getElementById('cur');
-    const durEl = document.getElementById('dur');
-    const progressEl = document.getElementById('progress');
-    const barEl = progressEl.querySelector('.bar');
-
-    const playBtn = document.getElementById('play');
-    const iconPlay = document.getElementById('iconPlay');
-    const prevBtn = document.getElementById('prev');
-    const nextBtn = document.getElementById('next');
-
-    const shuffleBtn = document.getElementById('shuffle');
-    const repeatBtn = document.getElementById('repeat');
-    const muteBtn = document.getElementById('mute');
-    const iconVol = document.getElementById('iconVol');
-    const volume = document.getElementById('volume');
-
-    const dedicationEl = document.getElementById('dedication');
-    const lyricsEl = document.getElementById('lyrics');
-
-    // Utilidades
-    const fmt = (s) => { if (!isFinite(s)) return '0:00'; const m = Math.floor(s / 60), r = Math.floor(s % 60); return `${m}:${r.toString().padStart(2,'0')}`; };
-
-    function renderList() {
-      listEl.innerHTML = '';
-      emptyEl.style.display = state.playlist.length ? 'none' : 'block';
-      state.playlist.forEach((t, i) => {
-        const li = document.createElement('li');
-        li.className = 'track' + (i === state.index ? ' active' : '');
-        li.setAttribute('role','option');
-        li.setAttribute('aria-selected', i === state.index ? 'true' : 'false');
-        li.innerHTML = `<div><div style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${t.title}</div><small>${t.artist || ''}</small></div><small>${i+1}</small>`;
-        li.onclick = () => playAt(i);
-        listEl.appendChild(li);
-      });
-    }
-
-    function loadTrack(i) {
-      if (i < 0 || i >= state.playlist.length) return;
-      state.index = i;
-      const track = state.playlist[i];
-      audio.src = track.src;
-      titleEl.textContent = track.title || '—';
-      artistEl.textContent = track.artist || '—';
-      dedicationEl.textContent = track.dedication || '—';
-      lyricsEl.textContent = track.lyrics || '—';
-      document.title = `▶ ${track.title} — Canción que escucho cuando pienso en ti`;
-      if (track.cover) { coverEl.src = track.cover; coverEl.alt = `Portada de ${track.title}`; coverEl.style.visibility = 'visible'; }
-      else { coverEl.removeAttribute('src'); coverEl.alt=''; coverEl.style.visibility='hidden'; }
-      renderList();
-    }
-
-    async function playAt(i) { if (i !== state.index) loadTrack(i); try { await audio.play(); } catch (e) {} updatePlayIcon(); }
-
-    function updatePlayIcon() {
-      const playing = !audio.paused; playBtn.setAttribute('aria-pressed', playing ? 'true' : 'false');
-      iconPlay.innerHTML = playing ? '<path d="M6 5h4v14H6zM14 5h4v14h-4z"/>' : '<path d="M8 5v14l11-7z"/>';
-    }
-
-    function updateVolumeIcon() {
-      iconVol.innerHTML = audio.muted || audio.volume === 0
-        ? '<path d="M3 9v6h4l5 4V5L7 9H3zm12.5 1.1l1.4-1.4L22 13l-1.1 1.1-5.4-5.4z"/>'
-        : '<path d="M3 9v6h4l5 4V5L7 9H3zm13.5 3a4.5 4.5 0 0 0-3-4.243v8.486A4.5 4.5 0 0 0 16.5 12z"/>';
-    }
-
-    function nextIndex() {
-      if (state.shuffle && state.playlist.length > 1) { let j; do { j = Math.floor(Math.random() * state.playlist.length); } while (j === state.index); return j; }
-      const last = state.playlist.length - 1; if (state.index < last) return state.index + 1; return state.repeat === 'all' ? 0 : state.index;
-    }
-    function prevIndex() {
-      if (state.shuffle && state.playlist.length > 1) { let j; do { j = Math.floor(Math.random() * state.playlist.length); } while (j === state.index); return j; }
-      if (state.index > 0) return state.index - 1; return state.repeat === 'all' ? (state.playlist.length - 1) : state.index;
-    }
-
-    // Controles
-    playBtn.addEventListener('click', async () => { if (!audio.src) return; if (audio.paused) { try { await audio.play(); } catch {} } else audio.pause(); updatePlayIcon(); });
-    prevBtn.addEventListener('click', () => { if (!state.playlist.length) return; playAt(prevIndex()); });
-    nextBtn.addEventListener('click', () => { if (!state.playlist.length) return; playAt(nextIndex()); });
-    shuffleBtn.addEventListener('click', () => { state.shuffle = !state.shuffle; shuffleBtn.setAttribute('aria-pressed', state.shuffle ? 'true' : 'false'); });
-    repeatBtn.addEventListener('click', () => { state.repeat = state.repeat === 'off' ? 'all' : state.repeat === 'all' ? 'one' : 'off'; repeatBtn.dataset.mode = state.repeat; repeatBtn.setAttribute('aria-pressed', state.repeat !== 'off' ? 'true' : 'false'); repeatBtn.title = state.repeat === 'off' ? 'Repetir: apagado' : state.repeat === 'all' ? 'Repetir: todo' : 'Repetir: una pista'; audio.loop = (state.repeat === 'one'); });
-    muteBtn.addEventListener('click', () => { audio.muted = !audio.muted; updateVolumeIcon(); });
-    volume.addEventListener('input', () => { audio.volume = parseFloat(volume.value); audio.muted = audio.volume === 0; updateVolumeIcon(); localStorage.setItem('vol', audio.volume); });
-
-    // Barra de progreso y teclado
-    const seekTo = (ratio) => { if (isFinite(audio.duration)) { audio.currentTime = Math.max(0, Math.min(audio.duration * ratio, audio.duration - 0.01)); } };
-    progressEl.addEventListener('click', (e) => { const rect = progressEl.getBoundingClientRect(); const x = (e.clientX - rect.left) / rect.width; seekTo(x); });
-    progressEl.addEventListener('keydown', (e) => { if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') { e.preventDefault(); const delta = (e.key === 'ArrowRight' ? 5 : -5); audio.currentTime = Math.max(0, Math.min(audio.currentTime + delta, audio.duration || Infinity)); } });
-
-    window.addEventListener('keydown', (e) => { if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.isContentEditable)) return; if (e.code === 'Space') { e.preventDefault(); playBtn.click(); } if (e.key === 'ArrowRight') { nextBtn.click(); } if (e.key === 'ArrowLeft') { prevBtn.click(); } if (e.key === 'ArrowUp') { audio.volume = Math.min(1, (audio.volume || 0) + 0.05); volume.value = audio.volume; updateVolumeIcon(); } if (e.key === 'ArrowDown') { audio.volume = Math.max(0, (audio.volume || 0) - 0.05); audio.muted = audio.volume === 0; volume.value = audio.volume; updateVolumeIcon(); } if (e.key.toLowerCase() === 'm') { muteBtn.click(); } });
-
-    // Eventos de audio
-    audio.addEventListener('loadedmetadata', () => { durEl.textContent = fmt(audio.duration || 0); });
-    audio.addEventListener('timeupdate', () => { const cur = audio.currentTime || 0; const dur = audio.duration || 0; curEl.textContent = fmt(cur); durEl.textContent = fmt(dur); const ratio = dur ? cur / dur : 0; barEl.style.transform = `scaleX(${ratio})`; progressEl.setAttribute('aria-valuenow', Math.round(ratio * 100)); });
-    audio.addEventListener('play', updatePlayIcon);
-    audio.addEventListener('pause', updatePlayIcon);
-    audio.addEventListener('ended', () => { if (state.repeat === 'one') { audio.currentTime = 0; audio.play(); return; } const ni = nextIndex(); if (ni === state.index && state.repeat !== 'all') { updatePlayIcon(); return; } playAt(ni); });
-
-    // Inicializar
-    renderList(); if (state.playlist.length) loadTrack(0);
-    const saved = parseFloat(localStorage.getItem('vol')); if (!Number.isNaN(saved)) { audio.volume = saved; volume.value = saved; } updateVolumeIcon();
-  </script>
-</body>
+    <audio id="audio" preload="metadata"></audio>
+    <script src="script.js" defer></script>
+  </body>
 </html>
